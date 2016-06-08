@@ -3,7 +3,7 @@
 set -e
 set -x
 
-CHANNEL=beta
+CHANNEL=browser
 XPI_URL=$1
 PATH=/openssl-0.9.8zg/apps/:$PATH
 XPI_NAME=addon.xpi
@@ -35,10 +35,10 @@ echo "Addon: ${ADDON_ID} - ${ADDON_VERSION} - maxVersion: ${MAX_VERSION} - minVe
 
 SIGNED_XPI_NAME=$ADDON_ID-$ADDON_VERSION-$CHANNEL-signed.xpi
 LATEST_XPI_NAME=latest.xpi
-S3_UPLOAD_URL=s3://cdncliqz/update/browser_beta/$ADDON_ID/$SIGNED_XPI_NAME
-LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/browser_beta/$ADDON_ID/$LATEST_XPI_NAME
-LATEST_RDF_S3_UPLOAD_URL=s3://cdncliqz/update/browser_beta/$ADDON_ID/latest.rdf
-DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/browser_beta/$ADDON_ID/$SIGNED_XPI_NAME
+S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
+LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/$LATEST_XPI_NAME
+LATEST_RDF_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/latest.rdf
+DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
 
 echo "CLIQZ: sign"
 python ./xpi-sign/xpisign.py \
