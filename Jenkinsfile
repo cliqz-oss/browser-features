@@ -13,8 +13,8 @@ node {
     ]],
     submoduleCfg: [],
     userRemoteConfigs: [[
-      credentialsId: '27da958c-432d-4255-bb57-abf00bb670d6',
-      url: 'git@github.com:cliqz/xpi-sign'
+      credentialsId: XPI_SIGN_CREDENTIALS,
+      url: XPI_SIGN_REPO_URL
     ]]
   ])
 
