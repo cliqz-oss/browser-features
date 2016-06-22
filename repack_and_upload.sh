@@ -7,6 +7,7 @@ CHANNEL=browser
 XPI_URL=$1
 PATH=/openssl-0.9.8zg/apps/:$PATH
 XPI_NAME=addon.xpi
+XPI_WITH_UPDATER=addon_with_update_url.xpi
 TMP_PATH=tmp
 
 if [ $# -eq 0 ];
@@ -35,17 +36,31 @@ echo "Addon: ${ADDON_ID} - ${ADDON_VERSION} - maxVersion: ${MAX_VERSION} - minVe
 
 SIGNED_XPI_NAME=$ADDON_ID-$ADDON_VERSION-$CHANNEL-signed.xpi
 LATEST_XPI_NAME=latest.xpi
-S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
-LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/$LATEST_XPI_NAME
-LATEST_RDF_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL/$ADDON_ID/latest.rdf
-DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
+
+# put all the output files to a *_pre folder before going live
+S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
+LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$LATEST_XPI_NAME
+LATEST_RDF_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/latest.rdf
+DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
+
+# no "_pre" for the update URL!!!
+UPDATE_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/latest.rdf
+
+echo "CLIQZ: add update URL"
+python ./rdf_updater.py \
+  --input-installer $TMP_PATH/addon/install.rdf \
+  --update-url $UPDATE_URL \
+
+cd $TMP_PATH/addon
+zip ../$XPI_WITH_UPDATER -r *
+cd ../../
 
 echo "CLIQZ: sign"
 python ./xpi-sign/xpisign.py \
   --signer openssl \
   --keyfile $SECURE_PATH/certs \
   --passin file:$SECURE_PATH/pass \
-  $TMP_PATH/$XPI_NAME \
+  $TMP_PATH/$XPI_WITH_UPDATER \
   $TMP_PATH/$SIGNED_XPI_NAME
 
 echo "CLIQZ: create latest rdf"
