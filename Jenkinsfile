@@ -1,6 +1,6 @@
 #!groovy
 
-node {
+node("master") {
   stage 'checkout deps'
   git 'https://github.com/cliqz-oss/browser-features.git'
   checkout([
