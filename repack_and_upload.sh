@@ -31,7 +31,7 @@ ADDON_ID=`grep em:id $TMP_PATH/addon/install.rdf | sed -e 's/[<>]/	/g' | head -1
 ADDON_VERSION=`grep em:version $TMP_PATH/addon/install.rdf | sed -e 's/[<>]/	/g' | cut -f3`
 MIN_VERSION=`grep em:minVersion $TMP_PATH/addon/install.rdf | sed -e 's/[<>]/	/g' | head -1 | cut -f3`
 MAX_VERSION=`grep em:maxVersion $TMP_PATH/addon/install.rdf | sed -e 's/[<>]/	/g' | head -1 | cut -f3`
-SECURE_PATH=./secure/$ADDON_ID
+#SECURE_PATH=./secure/$ADDON_ID
 echo "Addon: ${ADDON_ID} - ${ADDON_VERSION} - maxVersion: ${MAX_VERSION} - minVersion: ${MIN_VERSION}"
 
 SIGNED_XPI_NAME=$ADDON_ID-$ADDON_VERSION-$CHANNEL-signed.xpi
@@ -58,8 +58,8 @@ cd ../../
 echo "CLIQZ: sign"
 python ./xpi-sign/xpisign.py \
   --signer openssl \
-  --keyfile $SECURE_PATH/certs \
-  --passin file:$SECURE_PATH/pass \
+  --keyfile $XPISIGN_CERT \
+  --passin file:$XPISIGN_PASS \
   $TMP_PATH/$XPI_WITH_UPDATER \
   $TMP_PATH/$SIGNED_XPI_NAME
 
@@ -74,7 +74,7 @@ echo "CLIQZ: create latest rdf"
   --output-path=$TMP_PATH/latest.rdf
 
 echo "CLIQZ: upload"
-source $SECURE_PATH/upload-creds.sh
+#source $SECURE_PATH/upload-creds.sh
 aws s3 cp $TMP_PATH/$SIGNED_XPI_NAME $S3_UPLOAD_URL --acl public-read
 aws s3 cp $TMP_PATH/$SIGNED_XPI_NAME $LATEST_S3_UPLOAD_URL --acl public-read
 aws s3 cp $TMP_PATH/latest.rdf $LATEST_RDF_S3_UPLOAD_URL --acl public-read
