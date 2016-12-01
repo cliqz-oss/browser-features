@@ -23,11 +23,13 @@ node("master") {
     sh 'rm -fr secure'
     sh 'cp -R /cliqz secure'
   }
-
+  def imgName
+  
   stage('build docker image') {
-    def imgName = "cliqz-oss/browser-features:${env.BUILD_TAG}"
+    imgName = "cliqz-oss/browser-features:${env.BUILD_TAG}"
     docker.build(imgName, ".")
   }
+
   stage('repack and upload') {
       docker.image(imgName).inside {
         withCredentials([
