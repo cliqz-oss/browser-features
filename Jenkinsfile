@@ -22,6 +22,7 @@ node("master") {
   stage('prepare workspace') {
     sh 'rm -fr secure'
     sh 'cp -R /cliqz secure'
+  }
 
   stage('build docker image') {
     def imgName = "cliqz-oss/browser-features:${env.BUILD_TAG}"
