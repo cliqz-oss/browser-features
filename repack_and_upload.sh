@@ -43,9 +43,9 @@ function bootstrapAddon {
   S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
   LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$LATEST_XPI_NAME
   LATEST_RDF_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/latest.rdf
-  DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
 
   # no "_pre" for the update URL!!!
+  DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
   UPDATE_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/latest.rdf
 
   echo "CLIQZ: add update URL"
@@ -84,7 +84,6 @@ function bootstrapAddon {
 }
 
 function webExtension {
-  echo "hello"
   ADDON_ID=`cat $TMP_PATH/addon/manifest.json | jq -r '.applications.gecko.id'`
   ADDON_VERSION=`cat $TMP_PATH/addon/manifest.json | jq -r '.version'`
   SECURE_PATH=./secure/$ADDON_ID
@@ -96,10 +95,33 @@ function webExtension {
   # put all the output files to a *_pre folder before going live
   S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
   LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$LATEST_XPI_NAME
+  S3_UPDATE_JSON_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/update.json
+
+  # no _pre for emeded urls
+  DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
+  UPDATE_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/update.json
+
+  echo "CLIQZ: update manifest.json"
+  cat $TMP_PATH/addon/manifest.json | jq --arg url $UPDATE_URL '.applications.gecko.update_url = $url' > $TMP_PATH/manifest.json
+  mv $TMP_PATH/manifest.json $TMP_PATH/addon/manifest.json
 
   cd $TMP_PATH/addon
   zip ../$XPI_WITH_UPDATER -r *
   cd ../../
+
+  echo "CLIQZ: generate update.json"
+  printf '{
+  "addons": {
+    "%s": {
+      "updates": [
+        {
+          "version": "%s",
+          "update_link": "%s"
+        }
+      ]
+    }
+  }
+}' $ADDON_ID $ADDON_VERSION $DOWNLOAD_URL $CHECKSUM > $TMP_PATH/update.json
 
   echo "CLIQZ: sign"
   python ./xpi-sign/xpisign.py \
@@ -111,6 +133,7 @@ function webExtension {
 
   echo "CLIQZ: upload"
   source $SECURE_PATH/upload-creds.sh
+  aws s3 cp $TMP_PATH/update.json $S3_UPDATE_JSON_UPLOAD_URL --acl public-read
   aws s3 cp $TMP_PATH/$SIGNED_XPI_NAME $S3_UPLOAD_URL --acl public-read
   aws s3 cp $TMP_PATH/$SIGNED_XPI_NAME $LATEST_S3_UPLOAD_URL --acl public-read
   echo "XPI uploaded to: ${DOWNLOAD_URL}"
@@ -119,7 +142,9 @@ function webExtension {
 # CHECK ADDON TYPE
 
 if [ -f $TMP_PATH/addon/install.rdf ]; then
+  echo 'Detected addon type: bootstrap'
   bootstrapAddon
 else
+  echo 'Detected addon type: web-extension'
   webExtension
 fi
