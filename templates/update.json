@@ -1,0 +1,13 @@
+{
+  "addons": {
+    "addon@example.com": {
+      "updates": [
+        {
+          "version": "",
+          "update_link": "",
+          "update_hash": ""
+        }
+      ]
+    }
+  }
+}

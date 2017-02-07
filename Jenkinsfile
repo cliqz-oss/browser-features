@@ -2,7 +2,7 @@
 
 node("master") {
   stage 'checkout deps'
-  git 'https://github.com/cliqz-oss/browser-features.git'
+  checkout scm
   checkout([
     $class: 'GitSCM',
     branches: [[name: '*/cliqz-ci']],
