@@ -28,7 +28,8 @@ node("master") {
 
   stage 'repack and upload'
   docker.image(imgName).inside {
-    sh '/bin/bash ./repack_and_upload.sh '+XPI_URL
+    def addonId = sh(returnStdout: true, script: "/bin/bash ./repack_and_upload.sh $XPI_URL | grep 'Addon:' | head -n 1").trim()
+    currentBuild.description = addonId
   }
 
   stage 'cleanup'
