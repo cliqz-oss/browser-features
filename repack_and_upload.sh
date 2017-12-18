@@ -27,6 +27,8 @@ wget $XPI_URL -O $TMP_PATH/$XPI_NAME
 echo "Unpack $TMP_PATH/addon.xpi to $TMP_PATH/addon"
 unzip $TMP_PATH/$XPI_NAME -d $TMP_PATH/addon
 
+echo "Ensure folder permissions"
+find $TMP_PATH/addon -type d -exec chmod 755 {} \;
 
 function bootstrapAddon {
   ADDON_ID=`grep em:id $TMP_PATH/addon/install.rdf | sed -e 's/[<>]/	/g' | head -1 | cut -f3`
