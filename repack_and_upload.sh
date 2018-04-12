@@ -103,10 +103,10 @@ function webExtension {
   # for beta channels, we upload to _beta, otherwise upload to _pre
   if [[ "$CHANNEL" == *_beta ]]
   then
-    CHANNEL_DIR = $CHANNEL
+    CHANNEL_DIR=$CHANNEL
   else
     # put all the output files to a *_pre folder before going live
-    CHANNEL_DIR = $CHANNEL"_pre"
+    CHANNEL_DIR=$CHANNEL"_pre"
   fi
 
   S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL_DIR/$ADDON_ID/$SIGNED_XPI_NAME

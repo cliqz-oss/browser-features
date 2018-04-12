@@ -24,8 +24,8 @@ node('master') {
             ]],
             submoduleCfg: [],
             userRemoteConfigs: [[
-                credentialsId: XPI_SIGN_CREDENTIALS,
-                url: XPI_SIGN_REPO_URL
+                credentialsId: params.XPI_SIGN_CREDENTIALS,
+                url: params.XPI_SIGN_REPO_URL
             ]]
         ])
     }
@@ -45,7 +45,7 @@ node('master') {
             withEnv([
                 'RANDFILE=.rnd'
             ]) {
-                def addonId = sh(returnStdout: true, script: "/bin/bash ./repack_and_upload.sh $XPI_URL $CHANNEL | grep 'Addon:' | head -n 1").trim()
+                def addonId = sh(returnStdout: true, script: "/bin/bash ./repack_and_upload.sh ${params.XPI_URL} ${params.CHANNEL} | grep 'Addon:' | head -n 1").trim()
                 currentBuild.description = addonId
             }
         }
