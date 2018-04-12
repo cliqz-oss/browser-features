@@ -17,6 +17,12 @@ then
   exit 1
 fi
 
+# optional channel
+if [ $# -eq 2 ];
+then
+  CHANNEL=$2
+fi
+
 echo "CLIQZ: clobber"
 rm -rf $TMP_PATH
 mkdir $TMP_PATH
@@ -94,10 +100,18 @@ function webExtension {
   SIGNED_XPI_NAME=$ADDON_ID-$ADDON_VERSION-$CHANNEL-signed.xpi
   LATEST_XPI_NAME=latest.xpi
 
-  # put all the output files to a *_pre folder before going live
-  S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$SIGNED_XPI_NAME
-  LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/$LATEST_XPI_NAME
-  S3_UPDATE_JSON_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL"_pre"/$ADDON_ID/update.json
+  # for beta channels, we upload to _beta, otherwise upload to _pre
+  if [[ "$CHANNEL" == *_beta ]]
+  then
+    CHANNEL_DIR = $CHANNEL
+  else
+    # put all the output files to a *_pre folder before going live
+    CHANNEL_DIR = $CHANNEL"_pre"
+  fi
+
+  S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL_DIR/$ADDON_ID/$SIGNED_XPI_NAME
+  LATEST_S3_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL_DIR/$ADDON_ID/$LATEST_XPI_NAME
+  S3_UPDATE_JSON_UPLOAD_URL=s3://cdncliqz/update/$CHANNEL_DIR/$ADDON_ID/update.json
 
   # no _pre for emeded urls
   DOWNLOAD_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/$SIGNED_XPI_NAME
