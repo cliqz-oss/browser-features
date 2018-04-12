@@ -1,5 +1,14 @@
 #!groovy
 
+properties([
+    parameters([
+        string(name: 'XPI_URL', defaultValue: 'https://addons.mozilla.org/firefox/downloads/latest-beta/8542/addon-8542-latest.xpi?src=dp-btn-devchannel'),
+        string(name: 'XPI_SIGN_CREDENTIALS', defaultValue: '41572f9c-06aa-46f0-9c3b-b7f4f78e9caa'),
+        string(name: 'XPI_SIGN_REPO_URL', defaultValue: 'git@github.com:cliqz/xpi-sign.git'),
+        string(name: 'CHANNEL', defaultValue: 'browser')
+    ])
+])
+
 node('master') {
     def imgName
 
@@ -36,7 +45,7 @@ node('master') {
             withEnv([
                 'RANDFILE=.rnd'
             ]) {
-                def addonId = sh(returnStdout: true, script: "/bin/bash ./repack_and_upload.sh $XPI_URL | grep 'Addon:' | head -n 1").trim()
+                def addonId = sh(returnStdout: true, script: "/bin/bash ./repack_and_upload.sh $XPI_URL $CHANNEL | grep 'Addon:' | head -n 1").trim()
                 currentBuild.description = addonId
             }
         }
