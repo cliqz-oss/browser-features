@@ -9,6 +9,7 @@ PATH=/openssl-0.9.8zg/apps/:$PATH
 XPI_NAME=addon.xpi
 XPI_WITH_UPDATER=addon_with_update_url.xpi
 TMP_PATH=tmp
+XPI_ID=
 
 if [ $# -eq 0 ];
 then
@@ -21,6 +22,12 @@ fi
 if [ $# -eq 2 ];
 then
   CHANNEL=$2
+fi
+
+# optional xpi id
+if [ $# -eq 3 ];
+then
+  XPI_ID=$3
 fi
 
 echo "CLIQZ: clobber"
@@ -92,7 +99,13 @@ function bootstrapAddon {
 }
 
 function webExtension {
-  ADDON_ID=`cat $TMP_PATH/addon/manifest.json | jq -r '.applications.gecko.id'`
+  if [[ "$XPI_ID" == "" ]]
+  then
+    ADDON_ID=`cat $TMP_PATH/addon/manifest.json | jq -r '.applications.gecko.id'`
+  else
+    ADDON_ID=$XPI_ID
+  fi
+
   ADDON_VERSION=`cat $TMP_PATH/addon/manifest.json | jq -r '.version'`
   SECURE_PATH=./secure/$ADDON_ID
   echo "Addon: ${ADDON_ID} - version ${ADDON_VERSION}"
