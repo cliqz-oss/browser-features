@@ -132,6 +132,7 @@ function webExtension {
 
   echo "CLIQZ: update manifest.json"
   cat $TMP_PATH/addon/manifest.json | jq --arg url $UPDATE_URL '.applications.gecko.update_url = $url' > $TMP_PATH/manifest.json
+  cat $TMP_PATH/addon/manifest.json | jq --arg addonId $ADDON_ID '.applications.gecko.id = $addonId' > $TMP_PATH/manifest.json
   mv $TMP_PATH/manifest.json $TMP_PATH/addon/manifest.json
 
   cd $TMP_PATH/addon
