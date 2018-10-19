@@ -131,8 +131,7 @@ function webExtension {
   UPDATE_URL=https://s3.amazonaws.com/cdncliqz/update/$CHANNEL/$ADDON_ID/update.json
 
   echo "CLIQZ: update manifest.json"
-  cat $TMP_PATH/addon/manifest.json | jq --arg url $UPDATE_URL '.applications.gecko.update_url = $url' > $TMP_PATH/manifest.json
-  cat $TMP_PATH/addon/manifest.json | jq --arg addonId $ADDON_ID '.applications.gecko.id = $addonId' > $TMP_PATH/manifest.json
+  cat $TMP_PATH/addon/manifest.json | jq --arg addonId $ADDON_ID --arg url $UPDATE_URL '.applications.gecko.update_url = $url | .applications.gecko.id = $addonId' > $TMP_PATH/manifest.json
   mv $TMP_PATH/manifest.json $TMP_PATH/addon/manifest.json
 
   cd $TMP_PATH/addon
